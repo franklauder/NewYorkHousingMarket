@@ -52,6 +52,14 @@ saveRDS(ny_housing, "ny_housing.rds")
 ```
 
 
+```{r}
+
+
+ny_housing<-readRDS("ny_housing.rds")
+
+```
+
+
 
 ```{r}
 
@@ -80,7 +88,7 @@ ny_housing |> summary()
 
 ny_housing |> 
     mutate_if(is.character, factor) |> 
-    count(TYPE)
+    count(LOCALITY)
 
 
 
@@ -92,9 +100,110 @@ ny_housing |>
 
 
 ny_housing |> 
-    select(ADMINISTRATIVE_AREA_LEVEL_2) |> 
-    head()
+    select(FORMATTED_ADDRESS) |> 
+    tail(20)
 
+
+
+```
+
+
+```{r}
+
+
+ny_housing_2<-ny_housing |> 
+    mutate(zip_cde=str_trunc(FORMATTED_ADDRESS,13,"left"))
+
+
+
+
+```
+
+
+```{r}
+
+
+ny_housing_2 |> 
+    select(zip_cde) |> 
+    head(20)
+
+
+
+```
+
+
+```{r}
+
+
+
+ny_housing_2<-ny_housing_2 |> 
+    mutate(zip_cde=str_trim(zip_cde))
+
+
+
+```
+
+
+
+```{r}
+
+
+ny_housing_2 |> 
+    select(zip_cde) |> 
+    head(20)
+
+
+```
+
+
+```{r}
+
+
+
+ny_housing_2<-ny_housing_2 |> 
+    mutate(zip_cde=str_trunc(zip_cde,11,"right"))
+
+
+
+```
+
+```{r}
+
+ny_housing_2 |> 
+    select(zip_cde) |> 
+    head(20)
+
+
+```
+
+
+```{r}
+
+
+saveRDS(ny_housing_2,"ny_housing_2.rds")
+
+
+```
+
+
+
+```{r}
+
+
+
+ny_housing_2<-readRDS("ny_housing_2.rds")
+
+
+
+```
+
+
+```{r}
+
+
+
+ny_housing_3<-ny_housing_2 |> 
+    mutate(city=str_trunc(FORMATTED_ADDRESS,13,"left"))
 
 
 ```
