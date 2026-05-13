@@ -20,6 +20,8 @@ library(survey)
 
 library(srvyr)
 
+library(tidycensus)
+
 library(sf)
 
 library(jsonlite)
@@ -85,34 +87,29 @@ ny_housing |> summary()
 
 ```{r}
 
-
 ny_housing |> 
-    mutate_if(is.character, factor) |> 
-    count(LOCALITY)
-
+    select(STATE, MAIN_ADDRESS, FORMATTED_ADDRESS, LOCALITY) |> 
+    head(20)
 
 
 ```
 
 
 
-```{r}
 
+The address fields are not consistant on the city or town names.  In some instances the city name is actually a neighborhood within a city or New York City borough. 
 
-ny_housing |> 
-    select(FORMATTED_ADDRESS) |> 
-    tail(20)
+We will use the stringr package and regular expressions to extract the zip code which then can be used to determine the city. 
 
 
 
-```
 
 
 ```{r}
 
 
 ny_housing_2<-ny_housing |> 
-    mutate(zip_cde=str_trunc(FORMATTED_ADDRESS,13,"left"))
+    mutate(zip_cde=str_extract(MAIN_ADDRESS,"\\d{5}"))
 
 
 
@@ -132,40 +129,20 @@ ny_housing_2 |>
 ```
 
 
+
+
 ```{r}
 
 
-
-ny_housing_2<-ny_housing_2 |> 
-    mutate(zip_cde=str_trim(zip_cde))
-
+glimpse(ny_housing_2)
 
 
 ```
 
 
 
-```{r}
 
 
-ny_housing_2 |> 
-    select(zip_cde) |> 
-    head(20)
-
-
-```
-
-
-```{r}
-
-
-
-ny_housing_2<-ny_housing_2 |> 
-    mutate(zip_cde=str_trunc(zip_cde,11,"right"))
-
-
-
-```
 
 ```{r}
 
@@ -187,26 +164,6 @@ saveRDS(ny_housing_2,"ny_housing_2.rds")
 
 
 
-```{r}
-
-
-
-ny_housing_2<-readRDS("ny_housing_2.rds")
-
-
-
-```
-
-
-```{r}
-
-
-
-ny_housing_3<-ny_housing_2 |> 
-    mutate(city=str_trunc(FORMATTED_ADDRESS,13,"left"))
-
-
-```
 
 
 
@@ -214,12 +171,7 @@ ny_housing_3<-ny_housing_2 |>
 
 
 
-```{r}
 
-
-
-
-```
 
 
 
@@ -263,5 +215,54 @@ ny_housing_3<-ny_housing_2 |>
 
 
 Sys.getenv("CENSUS_API_KEY")
+
+```
+
+
+
+```{r}
+
+
+
+census_2020<-load_variables(2020,"pl",cache=TRUE)
+
+
+```
+
+
+
+
+
+```{r}
+
+
+acs_5 <- load_variables(2024,"acs5", cache = TRUE)
+
+
+
+```
+
+
+```{r}
+
+
+median_age <- get_acs(
+    geography = "state",
+    variables = "B01002_001",
+    year=2024
+)
+
+
+
+```
+
+
+
+```{r}
+
+
+load_variables(2020,"acs5")
+
+
 
 ```
