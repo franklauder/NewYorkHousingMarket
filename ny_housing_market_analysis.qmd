@@ -429,6 +429,169 @@ The output displays our added census tract, count, and block codes.
 ```{r}
 
 
+census_geo <- census_codes |> 
+    select(-LATITUDE,-LONGITUDE, -census_code)
+
+
+```
+
+
+```{r}
+
+
+
+saveRDS(census_geo,"census_geo.rds")
+
+
+```
+
+
+```{r}
+
+
+census_geo <- readRDS("census_geo.rds")
+
+```
+
+```{r}
+
+census_geo |> head()
+
+
+
+```
+
+```{r}
+
+
+census_geo |>  glimpse()
+
+```
+
+
+
+
+```{r}
+
+
+ny_housing_census <- cbind(ny_housing_2, census_geo)
+
+
+```
+
+
+
+```{r}
+
+
+
+ny_housing_census <- ny_housing_census |> 
+    select(TYPE, PRICE, BEDS, BATH, PROPERTYSQFT, LATITUDE, LONGITUDE, zip_cde, census_tract, county, block)
+
+
+```
+
+
+
+```{r}
+
+
+
+saveRDS(ny_housing_census, "ny_housing_census.rds")
+
+
+```
+
+
+```{r}
+
+
+ny_housing_census <- readRDS("ny_housing_census.rds")
+
+
+```
+
+
+```{r}
+
+
+variables_to_get <- c(
+    median_value = "B25077_001",
+    median_income = "DP03_0062",
+    total_population = "B01003_001",
+    median_age = "B01002_001",
+    pct_college = "DP02_0068p",
+    pct_foreign_born = "DP02_0094P",
+    pct_white = "DP05_0077P",
+    median_year_built = "B25037_001",
+    percent_ooh = "DP04_0046P"
+
+)
+
+
+
+
+
+
+```
+
+
+```{r}
+
+
+ny_tract_data <- get_acs(
+    geography = "tract",
+    variables = variables_to_get,
+    state = "NY",
+    output="wide",
+    year = 2024
+)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+
+
+ny_housing_census |> head()
+
+
+
+
+```
+
+```{r}
+
+ny_housing_census |> summary()
+
+
+
+```
+
+
+```{r}
+
+
+
+
+
+
+```
+
+
+
+```{r}
+
+
 acs_5 <- load_variables(2024,"acs5", cache = TRUE)
 
 
