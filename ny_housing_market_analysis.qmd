@@ -262,7 +262,7 @@ long_lat$census_code <- apply(long_lat, 1, function(row) call_geolocator_latlon(
 ```{r}
 
 
-long_lat_tract <-long_lat
+long_lat_data <-long_lat
 
 
 
@@ -271,7 +271,7 @@ long_lat_tract <-long_lat
 
 ```{r}
 
-saveRDS(long_lat_tract,"long_lat_tract.rds")
+saveRDS(long_lat_data,"long_lat_data.rds")
 
 
 
@@ -282,7 +282,7 @@ saveRDS(long_lat_tract,"long_lat_tract.rds")
 ```{r}
 
 
-long_lat_tract <-readRDS("long_lat_tract.rds")
+long_lat_data <-readRDS("long_lat_data.rds")
 
 ```
 
@@ -294,7 +294,7 @@ We can observe that thge data frame returned from the cenus api now includes the
 
 
 
-long_lat_tract |> head()
+long_lat_data |> head()
 
 
 ```
@@ -302,15 +302,127 @@ long_lat_tract |> head()
 ```{r}
 
 
-long_lat_tract |> glimpse()
+long_lat_data |> glimpse()
 
 
 ```
 
 
-The 15 digit code returnd  from the census api is made up of serveral codes put together.  
+The 15 digit code returnd  from the census api is made up of serveral codes put together.  The first two digits are the state code.  The next three digits are the county code. The next six digits are the census tract code.  The last four digits are the census block code. 
 
 
+```{r}
+
+
+
+ny_tracts <- tracts("NY", year = 2024)
+
+
+```
+
+```{r}
+
+
+class(ny_tracts)
+
+
+
+```
+
+```{r}
+
+
+ny_tracts |>  head()
+
+
+```
+
+
+```{r}
+
+
+census_codes<-long_lat_data
+
+
+
+```
+
+
+
+We will use the substr function to break up the census code into its individual components.  THe census tract will first be extracted. 
+
+
+```{r}
+
+
+
+census_codes$census_tract<-substr(census_codes$census_code,6,11)
+
+
+```
+
+
+
+Three digit county code
+
+```{r}
+
+
+
+census_codes$county <-substr(census_codes$census_code,3,5)
+
+
+
+```
+
+
+
+four digit census block code
+ 
+
+
+```{r}
+
+census_codes$block <-substr(census_codes$census_code,12,15)
+
+
+```
+
+
+
+
+
+
+
+```{r}
+
+
+saveRDS(census_codes, "census_codes.rds")
+
+
+
+```
+
+
+```{r}
+
+
+census_codes <- readRDS("census_codes.rds")
+
+
+```
+
+
+```{r}
+
+
+
+census_codes |> head()
+
+
+```
+
+The output displays our added census tract, count, and block codes. 
 
 
 
