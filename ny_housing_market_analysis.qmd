@@ -163,27 +163,18 @@ saveRDS(ny_housing_2,"ny_housing_2.rds")
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ```{r}
 
 
 
-
+ny_housing_2 <- readRDS("ny_housing_2.rds")
 
 
 ```
+
+
+
+
 
 
 
@@ -228,6 +219,96 @@ census_2020<-load_variables(2020,"pl",cache=TRUE)
 
 
 ```
+
+
+For our analysis we will require census tract codes.  THe first step is to create a data frame which includes only the latitude and longitude columns. 
+
+```{r}
+
+
+
+long_lat <- ny_housing_2 |> 
+    select(LATITUDE, LONGITUDE)
+
+
+```
+
+
+```{r}
+
+
+long_lat |> glimpse()
+
+
+
+```
+
+
+
+Now that we have our long_lat data frame we will use the call_geolocator_latlon function from the Tigris library.  The function submits a request to the census bureau api with a new column of census_code specified. 
+
+```{r}
+
+
+
+long_lat$census_code <- apply(long_lat, 1, function(row) call_geolocator_latlon(row['LATITUDE'], row['LONGITUDE']))
+
+
+
+
+```
+
+
+```{r}
+
+
+long_lat_tract <-long_lat
+
+
+
+```
+
+
+```{r}
+
+saveRDS(long_lat_tract,"long_lat_tract.rds")
+
+
+
+```
+
+
+
+```{r}
+
+
+long_lat_tract <-readRDS("long_lat_tract.rds")
+
+```
+
+
+We can observe that thge data frame returned from the cenus api now includes the cenus_code column. 
+
+
+```{r}
+
+
+
+long_lat_tract |> head()
+
+
+```
+
+```{r}
+
+
+long_lat_tract |> glimpse()
+
+
+```
+
+
+The 15 digit code returnd  from the census api is made up of serveral codes put together.  
 
 
 
