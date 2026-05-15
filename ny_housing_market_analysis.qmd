@@ -712,31 +712,12 @@ ny_tract_info_2 <- readRDS("ny_tract_info_2.rds")
 
 
 
-
-
-```{r}
-
-
-ny_housing_census |> head()
-
-
-
-
-```
-
-```{r}
-
-ny_housing_census |> summary()
-
-
-
-```
-
+We will combine our two tract info datasets. 
 
 ```{r}
 
 
-
+ny_tract_data <- cbind(ny_tract_info_1, ny_tract_info_2)
 
 
 
@@ -746,8 +727,44 @@ ny_housing_census |> summary()
 
 ```{r}
 
+saveRDS(ny_tract_data, "ny_tract_data.rds")
 
-acs_5 <- load_variables(2024,"acs5", cache = TRUE)
+
+```
+
+
+```{r}
+
+
+
+ny_tract_data <-readRDS("ny_tract_data.rds")
+
+
+```
+
+```{r}
+
+ny_tract_data |> summary()
+
+
+
+```
+
+
+```{r}
+
+
+
+ny_tract_data |> glimpse()
+
+
+```
+
+
+
+```{r}
+
+
 
 
 
