@@ -42,7 +42,7 @@ library(DT)
 
 
 
-# Review
+# New York Housing data Review
 
 
 ```{r}
@@ -220,8 +220,10 @@ census_2020<-load_variables(2020,"pl",cache=TRUE)
 
 ```
 
+## Longitude/Latitude 
 
-For our analysis we will require census tract codes.  THe first step is to create a data frame which includes only the latitude and longitude columns. 
+
+For our analysis we will require census tract codes that match our NY housing data. We will use the longitude and latitude columns in the dataset for this.  The first step is to create a data frame which includes only the latitude and longitude columns. 
 
 ```{r}
 
@@ -287,7 +289,7 @@ long_lat_data <-readRDS("long_lat_data.rds")
 ```
 
 
-We can observe that thge data frame returned from the cenus api now includes the cenus_code column. 
+We can observe that the data frame returned from the cenus api now includes the cenus_code column. 
 
 
 ```{r}
@@ -562,6 +564,10 @@ ny_housing_census |> summary()
 
 ```
 
+## Census tract Demographic Data
+
+
+
 
 ```{r}
 
@@ -621,6 +627,7 @@ ny_tract_info_1 <- get_acs(
     geography = "tract",
     variables = variables_to_get_1,
     state = "NY",
+    #geometry = TRUE,
     output="wide",
     year = 2024
 ) #|> 
@@ -651,6 +658,9 @@ ny_tract_info_1 |> glimpse()
 ```
 
 
+
+
+
 ```{r}
 
 
@@ -676,11 +686,24 @@ ny_tract_info_2 <- get_acs(
     geography = "tract",
     variables = variables_to_get_2,
     state = "NY",
+    #geometry = TRUE,
     output="wide",
     year = 2024
 ) #|> 
     #select(-NAME)
 
+
+
+
+```
+
+
+
+```{r}
+
+
+ny_tract_info_2 <- ny_tract_info_2 |> 
+    select(-geometry)
 
 
 
@@ -698,6 +721,10 @@ saveRDS(ny_tract_info_2,"ny_tract_info_2.rds")
 ```
 
 
+
+
+
+
 ```{r}
 
 
@@ -708,18 +735,94 @@ ny_tract_info_2 <- readRDS("ny_tract_info_2.rds")
 ```
 
 
+```{r}
+
+ny_tract_info_2 |> glimpse()
 
 
 
+```
 
-We will combine our two tract info datasets. 
+
+```{r}
+
+ny_tract_geometry <- ny_tract_info_1 |> 
+    select(GEOID, geometry)
+
+
+```
+
 
 ```{r}
 
 
-ny_tract_data <- cbind(ny_tract_info_1, ny_tract_info_2)
+ny_tract_geometry |> glimpse()
 
 
+```
+
+
+```{r}
+
+
+saveRDS(ny_tract_geometry, "ny_tract_geometry.rds")
+
+
+```
+
+
+```{r}
+
+
+
+ny_tract_geometry <- readRDS("ny_tract_geometry.rds")
+
+
+```
+
+
+```{r}
+
+
+ny_tract_data <- ny_tract_info_1 |> 
+    full_join(ny_tract_info_2, by="GEOID")
+
+
+```
+
+```{r}
+
+st_join()
+
+
+```
+
+
+
+
+
+```{r}
+
+
+ny_tract_data |> glimpse()
+
+
+```
+
+
+```{r}
+
+
+ny_tract_data <-ny_tract_data |> 
+    select(-NAME.y)
+
+
+```
+
+```{r}
+
+ny_tract_data <- ny_tract_data |> 
+    rename(NAME=NAME.x)
 
 ```
 
@@ -765,7 +868,17 @@ ny_tract_data |> glimpse()
 ```{r}
 
 
+ny_tract_geom <- st_join(ny_tract_data,ny_tract_geometry)
 
+
+```
+
+## Feature Engineering
+
+```{r}
+
+
+library(units)
 
 
 ```
@@ -774,11 +887,11 @@ ny_tract_data |> glimpse()
 ```{r}
 
 
-median_age <- get_acs(
-    geography = "state",
-    variables = "B01002_001",
-    year=2024
-)
+ny_tract_data_2 <- ny_tract_data |> 
+    mutate(pop_density = as.numeric(set_units(total_populationE / st_area(.),"1/km2")),
+           median_structure_age = 2022 - median_year_builtE) |> 
+    select(!ends_with("M")) |> 
+    rename_with(.fn = ~str_remove(.x, "E$"))
 
 
 
