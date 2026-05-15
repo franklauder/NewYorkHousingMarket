@@ -388,9 +388,18 @@ census_codes$block <-substr(census_codes$census_code,12,15)
 
 ```
 
+#GEOID column
 
 
 
+```{r}
+
+
+
+census_codes$GEOID <-substr(census_codes$census_code,1,11)
+
+
+```
 
 
 
@@ -422,7 +431,21 @@ census_codes |> head()
 
 ```
 
-The output displays our added census tract, count, and block codes. 
+```{r}
+
+
+census_codes |>  glimpse()
+
+
+
+```
+
+
+
+The output displays our added census tract, count, block codes, and GEOID. 
+
+
+
 
 
 
@@ -430,7 +453,7 @@ The output displays our added census tract, count, and block codes.
 
 
 census_geo <- census_codes |> 
-    select(-LATITUDE,-LONGITUDE, -census_code)
+    select(-LATITUDE,-LONGITUDE)
 
 
 ```
@@ -486,7 +509,7 @@ ny_housing_census <- cbind(ny_housing_2, census_geo)
 
 
 ny_housing_census <- ny_housing_census |> 
-    select(TYPE, PRICE, BEDS, BATH, PROPERTYSQFT, LATITUDE, LONGITUDE, zip_cde, census_tract, county, block)
+    select(GEOID,census_code,TYPE, PRICE, BEDS, BATH, PROPERTYSQFT, LATITUDE, LONGITUDE, zip_cde, census_tract, county, block)
 
 
 ```
@@ -511,22 +534,59 @@ ny_housing_census <- readRDS("ny_housing_census.rds")
 
 ```
 
+```{r}
+
+ny_housing_census |> head()
+
+
+```
+
+
+
 
 ```{r}
 
 
-variables_to_get <- c(
+ny_housing_census |> glimpse()
+
+
+
+```
+
+
+```{r}
+
+
+
+ny_housing_census |> summary()
+
+```
+
+
+```{r}
+
+
+
+load_variables(2024, "acs5")
+
+
+```
+
+
+Requesting census data from different tables can cause errors. To prevent this, we will request data separatley for the two tables. 
+
+
+```{r}
+
+
+variables_to_get_1 <- c(
     median_value = "B25077_001",
-    median_income = "DP03_0062",
     total_population = "B01003_001",
     median_age = "B01002_001",
-    pct_college = "DP02_0068p",
-    pct_foreign_born = "DP02_0094P",
-    pct_white = "DP05_0077P",
-    median_year_built = "B25037_001",
-    percent_ooh = "DP04_0046P"
+    median_year_built = "B25037_001"
+   
 
-)
+) 
 
 
 
@@ -539,18 +599,113 @@ variables_to_get <- c(
 ```{r}
 
 
-ny_tract_data <- get_acs(
+
+
+variables_to_get_2 <- c(
+    median_income = "DP03_0062",
+    pct_college = "DP02_0068P",
+    pct_foreign_born = "DP02_0094P",
+    pct_white = "DP05_0077P",
+    percent_ooh = "DP04_0046P"
+
+) 
+
+
+```
+
+
+```{r}
+
+
+ny_tract_info_1 <- get_acs(
     geography = "tract",
-    variables = variables_to_get,
+    variables = variables_to_get_1,
     state = "NY",
     output="wide",
     year = 2024
-)
+) #|> 
+    #select(-NAME)
 
 
 
 ```
 
+
+```{r}
+
+
+
+ny_tract_info_1 |> head()
+
+
+
+```
+
+```{r}
+
+
+
+ny_tract_info_1 |> glimpse()
+
+
+```
+
+
+```{r}
+
+
+saveRDS(ny_tract_info_1,"ny_tract_info_1.rds")
+
+
+
+```
+
+```{r}
+
+
+
+ny_tract_info_1 <- readRDS("ny_tract_info_1.rds")
+
+
+```
+
+```{r}
+
+
+ny_tract_info_2 <- get_acs(
+    geography = "tract",
+    variables = variables_to_get_2,
+    state = "NY",
+    output="wide",
+    year = 2024
+) #|> 
+    #select(-NAME)
+
+
+
+
+```
+
+
+```{r}
+
+
+
+saveRDS(ny_tract_info_2,"ny_tract_info_2.rds")
+
+
+
+```
+
+
+```{r}
+
+
+
+ny_tract_info_2 <- readRDS("ny_tract_info_2.rds")
+
+
+```
 
 
 
