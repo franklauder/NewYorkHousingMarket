@@ -784,6 +784,16 @@ ny_tract_geometry <- readRDS("ny_tract_geometry.rds")
 ```{r}
 
 
+
+class(ny_tract_geometry)
+
+
+```
+
+
+```{r}
+
+
 ny_tract_data <- ny_tract_info_1 |> 
     full_join(ny_tract_info_2, by="GEOID")
 
@@ -798,7 +808,15 @@ st_join()
 ```
 
 
+```{r}
 
+
+
+
+
+
+
+```
 
 
 ```{r}
@@ -830,10 +848,14 @@ ny_tract_data <- ny_tract_data |>
 
 ```{r}
 
+
 saveRDS(ny_tract_data, "ny_tract_data.rds")
 
 
+
+
 ```
+
 
 
 ```{r}
@@ -843,15 +865,9 @@ saveRDS(ny_tract_data, "ny_tract_data.rds")
 ny_tract_data <-readRDS("ny_tract_data.rds")
 
 
-```
-
-```{r}
-
-ny_tract_data |> summary()
-
-
 
 ```
+
 
 
 ```{r}
@@ -860,6 +876,86 @@ ny_tract_data |> summary()
 
 ny_tract_data |> glimpse()
 
+```
+
+
+```{r}
+
+
+
+ny_tract_data_2 <- ny_tract_data |> 
+    separate(NAME, into=c("census_tract", "county", "state"), sep="; ")
+
+
+```
+
+
+```{r}
+
+
+
+ny_tract_data_2 |> glimpse()
+
+
+
+```
+
+
+
+
+```{r}
+
+
+
+ny_tract_data_2 <- ny_tract_data_2 |> 
+    select(-state)
+
+
+
+```
+
+```{r}
+
+
+
+
+
+```
+
+
+
+```{r}
+
+saveRDS(ny_tract_data_2, "ny_tract_data_2.rds")
+
+
+```
+
+
+```{r}
+
+
+
+ny_tract_data_2 <-readRDS("ny_tract_data_2.rds")
+
+
+```
+
+```{r}
+
+ny_tract_data_2 |> summary()
+
+
+
+```
+
+
+```{r}
+
+
+
+ny_tract_data_2 |> glimpse()
+
 
 ```
 
@@ -868,7 +964,51 @@ ny_tract_data |> glimpse()
 ```{r}
 
 
-ny_tract_geom <- st_join(ny_tract_data,ny_tract_geometry)
+
+ny_tract_geom<-ny_tract_geometry |> 
+    full_join(ny_tract_data_2, by = "GEOID")
+
+
+```
+
+
+```{r}
+
+saveRDS(ny_tract_geom,"ny_tract_geom.rds")
+
+
+```
+
+
+```{r}
+
+
+ny_tract_geom <- readRDS("ny_tract_geom.rds")
+
+
+```
+
+```{r}
+
+ny_tract_geom |> glimpse()
+
+
+```
+
+```{r}
+
+
+ny_tract_geom |> summary()
+
+
+```
+
+
+
+```{r}
+
+
+#ny_tract_geom <- st_join(ny_tract_data,ny_tract_geometry)
 
 
 ```
