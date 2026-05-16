@@ -784,8 +784,63 @@ ny_tract_geometry <- readRDS("ny_tract_geometry.rds")
 ```{r}
 
 
+ny_tract_geometry |> head()
+
+
+```
+
+
+```{r}
+
+
 
 class(ny_tract_geometry)
+
+
+```
+
+```{r}
+
+ny_tract_cls <- ny_tract_geometry |> 
+    st_transform(5070) 
+
+
+```
+
+
+```{r}
+
+
+saveRDS(ny_tract_cls, "ny_tract_cls.rds")
+
+
+
+```
+
+
+```{r}
+
+
+ny_tract_cls <- readRDS("ny_tract_cls.rds")
+
+
+```
+
+
+```{r}
+
+
+class(ny_tract_cls)
+
+
+```
+
+```{r}
+
+
+
+ny_tract_cls |> head()
+
 
 
 ```
@@ -800,12 +855,7 @@ ny_tract_data <- ny_tract_info_1 |>
 
 ```
 
-```{r}
 
-st_join()
-
-
-```
 
 
 ```{r}
@@ -965,7 +1015,7 @@ ny_tract_data_2 |> glimpse()
 
 
 
-ny_tract_geom<-ny_tract_geometry |> 
+ny_tract_geom<-ny_tract_cls |> 
     full_join(ny_tract_data_2, by = "GEOID")
 
 
@@ -1027,12 +1077,69 @@ library(units)
 ```{r}
 
 
-ny_tract_data_2 <- ny_tract_data |> 
-    mutate(pop_density = as.numeric(set_units(total_populationE / st_area(.),"1/km2")),
+ny_tract_geom_2 <- ny_tract_geom |> 
+    mutate(pop_density = as.numeric(set_units(total_populationE / st_area(geometry),"1/km2")),
            median_structure_age = 2022 - median_year_builtE) |> 
     select(!ends_with("M")) |> 
     rename_with(.fn = ~str_remove(.x, "E$"))
 
+
+
+```
+
+
+
+```{r}
+
+
+
+ny_tract_geom_2 <- ny_tract_geom_2 |> 
+    mutate(pop_density = round(pop_density,2))
+
+
+
+```
+
+
+
+```{r}
+
+
+saveRDS(ny_tract_geom_2 , "ny_tract_geom_2 .rds")
+
+
+```
+
+
+
+```{r}
+
+
+
+ny_tract_geom_2  <- readRDS("ny_tract_geom_2.rds")
+
+
+```
+
+
+
+```{r}
+
+
+ny_tract_geom_2 |> head(20)
+
+
+```
+
+
+
+
+```{r}
+
+ny_tract_geom_2 |> 
+    select(census_tract) |> 
+    count(census_tract) |> 
+    arrange(desc(n))
 
 
 ```
