@@ -117,6 +117,28 @@ ny_housing_2<-ny_housing |>
 ```
 
 
+
+```{r}
+
+
+saveRDS(ny_housing_2,"ny_housing_2.rds")
+
+
+```
+
+
+
+```{r}
+
+
+ny_housing_2 <- readRDS("ny_housing_2.rds")
+
+
+
+
+```
+
+
 ```{r}
 
 
@@ -147,27 +169,30 @@ glimpse(ny_housing_2)
 ```{r}
 
 ny_housing_2 |> 
-    select(zip_cde) |> 
     head(20)
 
 
 ```
 
 
+
+
+
 ```{r}
 
 
-saveRDS(ny_housing_2,"ny_housing_2.rds")
+
+
 
 
 ```
 
-
 ```{r}
 
 
 
-ny_housing_2 <- readRDS("ny_housing_2.rds")
+
+
 
 
 ```
@@ -563,6 +588,81 @@ ny_housing_census |> glimpse()
 ny_housing_census |> summary()
 
 ```
+
+
+
+```{r}
+
+
+
+ny_housing_census |> 
+    count(GEOID) |> 
+    arrange(desc(n))
+
+
+
+```
+
+
+```{r}
+
+
+
+ny_housing_census |> 
+    filter(GEOID == "36061012200") |> 
+    summary()
+
+
+
+```
+
+
+```{r}
+
+
+
+
+ny_housing_census |> 
+    filter(GEOID == "36061012200") |> 
+    head(30)
+
+
+
+
+```
+
+```{r}
+
+
+ny_housing_census |> 
+    filter(GEOID == "36061014200") |> 
+    summary()
+
+```
+
+
+
+```{r}
+
+
+
+
+
+ny_housing_census |> 
+    filter(GEOID == "36061014200") |> 
+    head(30)
+
+
+
+```
+
+
+
+
+
+
+
+
 
 ## Census tract Demographic Data
 
