@@ -35,6 +35,7 @@ library(htmlwidgets)
 library(htmltools)
 library(gt)
 library(DT)
+library(GGally)
 
 
 ```
@@ -658,6 +659,18 @@ ny_housing_census_2 <- ny_housing_census_2 |>
 ```
 
 
+
+```{r}
+
+
+ny_housing_census_2 <- ny_housing_census_2 |> 
+    select(-census_tract)
+
+
+
+```
+
+
 ```{r}
 
 
@@ -793,6 +806,8 @@ ny_housing_census_2 |>
 
 ```
 
+## Visualization
+
 ```{r}
 
 
@@ -897,30 +912,11 @@ corr_plot
 
 ```
 
-```{r}
-
-
-ny_housing_census |> 
-    filter(GEOID == "36061014200") |> 
-    summary()
-
-```
-
-
-
-```{r}
 
 
 
 
 
-ny_housing_census |> 
-    filter(GEOID == "36061014200") |> 
-    head(30)
-
-
-
-```
 
 
 ```{r}
@@ -931,10 +927,6 @@ write.csv(ny_housing_census, "ny_housing_census.csv")
 
 
 ```
-
-
-
-
 
 
 
@@ -1480,6 +1472,17 @@ ny_tract_geom_2 <- ny_tract_geom_2 |>
 ```
 
 
+```{r}
+
+
+ny_tract_geom_2 <- ny_tract_geom_2 |> 
+    rename(county_name = county)
+
+
+
+```
+
+
 
 ```{r}
 
@@ -1524,15 +1527,7 @@ ny_tract_geom_2 |>
 ```
 
 
-```{r}
 
-
-
-
-write.csv(ny_tract_geom_2, "ny_tract_geom_2.csv")
-
-
-```
 
 
 
@@ -1545,6 +1540,82 @@ ny_tract_geom_2 |>
 
 
 
+
+```
+
+## Join Housing and Tract Data
+
+
+
+```{r}
+
+
+
+
+
+ny_census_combined <- ny_tract_geom_2 |> 
+    inner_join(ny_housing_census_2, join_by(GEOID)) |> 
+    select(-census_code, -LATITUDE, -LONGITUDE, -zip_cde, -block)
+
+
+
+```
+
+
+```{r}
+
+
+saveRDS(ny_census_combined, "ny_census_combined.rds")
+
+```
+
+
+```{r}
+
+ny_census_combined <- readRDS("ny_census_combined.rds")
+
+
+```
+
+
+
+
+
+
+
+```{r}
+
+
+
+ny_census_combined |> glimpse()
+
+```
+
+```{r}
+
+ny_census_combined |>  summary()
+
+
+```
+
+
+```{r}
+
+
+ny_census_combined |> 
+    filter(is.na(median_income)) |> 
+    head(20)
+
+
+
+```
+
+```{r}
+
+
+ny_census_combined |> 
+    select(county_name) |> 
+    head(30)
 
 ```
 
