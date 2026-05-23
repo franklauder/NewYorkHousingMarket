@@ -650,6 +650,17 @@ ny_housing_census_2 <- ny_housing_census_2 |>
 ```{r}
 
 
+ny_housing_census_2 <- ny_housing_census_2 |> 
+    mutate(BATH = round(BATH,0)) |> 
+    mutate(PROPERTYSQFT = round(PROPERTYSQFT,0))
+
+
+```
+
+
+```{r}
+
+
 
 saveRDS(ny_housing_census_2, "ny_housing_census_2.rds")
 
@@ -809,7 +820,9 @@ type_box
 
 ```{r}
 
-
+corr_plot <- ny_housing_census_2 |> 
+    select(PRICE, PROPERTYSQFT) |> 
+    ggscatmat(corMethod = "pearson", alpha = 0.2)
 
 
 
@@ -823,9 +836,7 @@ type_box
 
 
 
-ny_housing_census |> 
-    filter(GEOID == "36061012200") |> 
-    head(30)
+corr_plot
 
 
 
