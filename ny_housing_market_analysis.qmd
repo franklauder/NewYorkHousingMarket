@@ -796,10 +796,10 @@ ny_housing_census_2 |>
 ```{r}
 
 
-type_box<-ny_housing_census_2 %>% 
-  ggplot(aes(x=TYPE, y=PRICE, fill=TYPE))+
+sqr_ft_box<-ny_housing_census_2 %>% 
+  ggplot(aes(x=TYPE, y=PROPERTYSQFT, fill=TYPE))+
   geom_boxplot()+
-  ggtitle("Price by Property Type")+
+  ggtitle("Property Square Feet by Property Type")+
   theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
   theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
         axis.title.x=element_blank(),
@@ -810,7 +810,61 @@ type_box<-ny_housing_census_2 %>%
 
 ```{r}
 
-type_box
+sqr_ft_box
+
+```
+
+```{r}
+
+
+bed_box<-ny_housing_census_2 %>% 
+  ggplot(aes(x=TYPE, y=BEDS, fill=TYPE))+
+  geom_boxplot()+
+  ggtitle("Number of Bed Rooms  by Property Type")+
+  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
+  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
+        axis.title.x=element_blank(),
+    axis.title.y=element_blank())
+
+
+```
+
+
+
+
+```{r}
+
+bed_box
+
+```
+
+
+
+```{r}
+
+
+
+bath_box<-ny_housing_census_2 %>% 
+  ggplot(aes(x=TYPE, y=BATH, fill=TYPE))+
+  geom_boxplot()+
+  ggtitle("Number of Bath Rooms  by Property Type")+
+  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
+  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
+        axis.title.x=element_blank(),
+    axis.title.y=element_blank())
+
+
+```
+
+
+
+
+
+
+```{r}
+
+bath_box
+
 
 ```
 
@@ -821,7 +875,7 @@ type_box
 ```{r}
 
 corr_plot <- ny_housing_census_2 |> 
-    select(PRICE, PROPERTYSQFT) |> 
+    select(PRICE, PROPERTYSQFT, BEDS, BATH) |> 
     ggscatmat(corMethod = "pearson", alpha = 0.2)
 
 
