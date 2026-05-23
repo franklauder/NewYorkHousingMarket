@@ -218,7 +218,6 @@ ny_housing_2 |>
 
 
 
-# Cenus
 
 
 
@@ -596,7 +595,7 @@ ny_housing_census |> summary()
 
 
 ny_housing_census |> 
-    count(GEOID) |> 
+    count(TYPE) |> 
     arrange(desc(n))
 
 
@@ -604,13 +603,215 @@ ny_housing_census |>
 ```
 
 
+For TYPE, certain categories (Pending, Contingent, For Sale, Foreclsure, Coming Soon) offer little information on what the property is. Additionally, "Mobile  house for sale" has a count of only one. These categories will be removed.  
+
+
+```{r}
+
+
+ny_housing_census_2 <- ny_housing_census |> 
+    filter(TYPE %in% c("Co-op for sale", "House for sale", "Condo for sale", "Multi-family home for sale", "Townhouse for sale", "Land for sale", "Condop for sale"))
+
+
+```
+
+
+
+We will create artifical id's for each property.  This will be useful during our modeling. 
+
+
 ```{r}
 
 
 
-ny_housing_census |> 
-    filter(GEOID == "36061012200") |> 
+ny_housing_census_2 <- ny_housing_census_2 |> 
+    mutate(property_id = row_number())
+
+
+```
+
+
+The TYPE category "Condop for sale" will be merged into "Condo for sale" 
+
+
+```{r}
+
+
+
+ny_housing_census_2 <- ny_housing_census_2 |> 
+    mutate(TYPE = recode(TYPE, "Condop for sale" = "Condo for sale"))
+
+
+
+
+```
+
+
+```{r}
+
+
+
+saveRDS(ny_housing_census_2, "ny_housing_census_2.rds")
+
+
+```
+
+
+```{r}
+
+
+ny_housing_census_2 <- readRDS("ny_housing_census_2.rds")
+
+
+```
+
+
+```{r}
+
+
+ny_housing_census_2 |> 
+    count(TYPE) |> 
+    arrange(desc(n))
+
+```
+
+The feature TYPE has been reduced to six categories. 
+
+
+
+```{r}
+
+
+ny_housing_census_2 |> 
+    count(TYPE) |> 
+    mutate(perc = round(n/sum(n),2)) |> 
+    arrange(desc(perc))
+
+
+
+```
+
+Above is the ercentage breakdown of propery type.  type. 
+
+
+
+
+
+```{r}
+
+
+
+ny_housing_census_2 |> 
+    select(property_id) |>
+     head()
+
+
+```
+
+
+
+
+
+
+```{r}
+
+
+dim(ny_housing_census_2)
+
+
+
+```
+
+```{r}
+
+Our dataset now has 4,433 observations. 
+
+```
+
+
+
+
+
+```{r}
+
+
+ny_housing_census_2 |> 
+    count(county) |> 
+    arrange(desc(n))
+
+
+```
+
+
+There are five counties in our data that have properties for sale. 
+
+
+
+
+```{r}
+
+
+
+ny_housing_census_2 |> 
+    count(TYPE, census_tract) |>
+    slice_max(n,n=10) |> 
+    arrange(desc(n))
+
+
+
+```
+
+The top 10 tracts by count of property for sale. 
+
+
+```{r}
+
+
+options(scipen = 999)
+
+
+```
+
+
+```{r}
+
+ny_housing_census_2 |> 
+    select(PRICE, BEDS, BATH, PROPERTYSQFT) |> 
     summary()
+
+
+```
+
+```{r}
+
+
+type_box<-ny_housing_census_2 %>% 
+  ggplot(aes(x=TYPE, y=PRICE, fill=TYPE))+
+  geom_boxplot()+
+  ggtitle("Price by Property Type")+
+  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
+  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
+        axis.title.x=element_blank(),
+    axis.title.y=element_blank())
+
+
+```
+
+```{r}
+
+type_box
+
+```
+
+
+
+
+
+```{r}
+
+
+
+
 
 
 
@@ -657,6 +858,14 @@ ny_housing_census |>
 ```
 
 
+```{r}
+
+
+write.csv(ny_housing_census, "ny_housing_census.csv")
+
+
+
+```
 
 
 
@@ -664,7 +873,9 @@ ny_housing_census |>
 
 
 
-## Census tract Demographic Data
+
+
+# Census 
 
 
 
@@ -677,6 +888,9 @@ load_variables(2024, "acs5")
 
 
 ```
+
+
+## Tract Demographic Data
 
 
 Requesting census data from different tables can cause errors. To prevent this, we will request data separatley for the two tables. 
@@ -1205,7 +1419,7 @@ ny_tract_geom_2 <- ny_tract_geom_2 |>
 ```{r}
 
 
-saveRDS(ny_tract_geom_2 , "ny_tract_geom_2 .rds")
+saveRDS(ny_tract_geom_2 , "ny_tract_geom_2.rds")
 
 
 ```
@@ -1240,6 +1454,31 @@ ny_tract_geom_2 |>
     select(census_tract) |> 
     count(census_tract) |> 
     arrange(desc(n))
+
+
+```
+
+
+```{r}
+
+
+
+
+write.csv(ny_tract_geom_2, "ny_tract_geom_2.csv")
+
+
+```
+
+
+
+```{r}
+
+
+
+ny_tract_geom_2 |> 
+    glimpse()
+
+
 
 
 ```
