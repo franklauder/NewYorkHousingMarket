@@ -1669,6 +1669,22 @@ ny_census_combined_2 <- ny_census_combined |>
 ```
 
 
+```{r}
+
+saveRDS(ny_census_combined_2, "ny_census_combined_2.rds")
+
+
+```
+
+```{r}
+
+
+ny_census_combined_2 <- readRDS("ny_census_combined_2.rds")
+
+
+```
+
+
 
 
 ```{r}
@@ -1732,13 +1748,15 @@ The tracts with missing median_income values have pct_white populations that are
 
 ```
 
-Census tract 102
+Census tracts 102 and 96 within New York County
+
+We'll use median income of all tracts within the county the tract witgh the missing values reside in. 
 
 ```{r}
 
 
-ny_census_combined_2 |> 
-    filter(census_tract == "Census Tract 102") |> 
+ny_tract_geom_2 |> 
+    filter(county_name == "New York County") |> 
     filter(!is.na(median_income)) |> 
     summarise(median_tract_income = median(median_income))
 
@@ -1752,18 +1770,36 @@ ny_census_combined_2 |>
 
 
 ny_census_combined_3 <- ny_census_combined_2 |> 
-    mutate(median_income = ifelse(census_tract == "Census Tract 102" & is.na(median_income), 107270,median_income ))
+    mutate(median_income = ifelse(county_name == "New York County" & is.na(median_income), 121760.5,median_income ))
 
 
 ```
 
 
-Census Tract 96
 
 ```{r}
 
-ny_census_combined_2 |> 
-    filter(census_tract == "Census Tract 96") |> 
+
+ny_census_combined_3 |> 
+    filter(is.na(median_income)) |> 
+    head(17)
+
+
+```
+
+As New York County includes tracts 102 and 96, we can observe those those tracts no longer have missing values for median income. 
+
+
+
+
+
+
+Census Tract 226.02 Richmond County
+
+```{r}
+
+ny_tract_geom_2 |> 
+    filter(county_name == "Richmond County") |> 
     filter(!is.na(median_income)) |> 
     summarise(median_tract_income = median(median_income))
 
@@ -1772,17 +1808,7 @@ ny_census_combined_2 |>
 ```
 
 
-```{r}
 
-
-
-ny_census_combined_3 <- ny_census_combined_3 |> 
-    mutate(median_income = ifelse(census_tract == "Census Tract 96" & is.na(median_income), 47212,median_income ))
-
-
-
-
-```
 
 
 census tract 226.02
@@ -1791,8 +1817,8 @@ census tract 226.02
 
 ```{r}
 
-ny_census_combined_2 |> 
-    filter(census_tract == "Census Tract 226.02") |> 
+ny_census_combined_3 |> 
+    filter(census_tract == "Census Tract 102") |> 
     filter(is.na(median_income)) 
 
 
@@ -1802,61 +1828,28 @@ ny_census_combined_2 |>
 ```{r}
 
 
-ny_census_combined_2 |> 
-    filter(census_tract == "Census Tract 226.02") |> 
-    head() 
-
-```
-
-
-
-```{r}
-
-
-
-ny_census_combined_2 |> 
-    filter(county_name == "Richmond County") |> 
-    filter(!is.na(median_income)) |> 
-    summarise(median_tract_income = median(median_income))
-
-
-```
-
-
-
-```{r}
-
-
 ny_census_combined_3 <- ny_census_combined_3 |> 
-    mutate(median_income = ifelse(county_name == "Richmond County" & is.na(median_income), 100965,median_income ))
-
-
-```
-
-
-census tract 932
-
-```{r}
-
-
-ny_census_combined_2 |> 
-    filter(census_tract == "Census Tract 932") |> 
-    head()
-
+    mutate(median_income = ifelse(county_name == "Richmond County" & is.na(median_income), 99305,median_income ))
 
 ```
 
 
+
+Census Tract 932  Kings County 
+
 ```{r}
 
 
-ny_census_combined_2 |> 
+
+ny_tract_geom_2 |> 
     filter(county_name == "Kings County") |> 
     filter(!is.na(median_income)) |> 
     summarise(median_tract_income = median(median_income))
 
 
+
 ```
+
 
 
 ```{r}
@@ -1864,49 +1857,66 @@ ny_census_combined_2 |>
 
 
 ny_census_combined_3 <- ny_census_combined_3 |> 
-    mutate(median_income = ifelse(county_name == "Kings County" & is.na(median_income), 85947,median_income ))
-
+    mutate(median_income = ifelse(county_name == "Kings County" & is.na(median_income), 79773,median_income ))
 
 
 ```
 
-Census Tract 231
 
-```{r}
+Census Tract 231  Bronx County
 
-
-ny_census_combined_2 |> 
-    filter(census_tract == "Census Tract 231") |> 
-    head()
-
-```
 
 
 ```{r}
 
 
-
-ny_census_combined_2 |> 
-    filter(census_tract == "Census Tract 231") |> 
+ny_tract_geom_2 |> 
+    filter(county_name == "Bronx County") |> 
     filter(!is.na(median_income)) |> 
     summarise(median_tract_income = median(median_income))
 
 
-
 ```
-
-
-
-
-
-
 
 
 ```{r}
 
 
 ny_census_combined_3 <- ny_census_combined_3 |> 
-    mutate(median_income = ifelse(census_tract == "Census Tract 231" & is.na(median_income), 86589,median_income ))
+    mutate(median_income = ifelse(county_name == "Bronx County" & is.na(median_income), 50243,median_income ))
+
+
+```
+
+
+Census Tract 536.01 Queens County
+
+```{r}
+
+
+ny_tract_geom_2 |> 
+    filter(county_name == "Queens County") |> 
+    filter(!is.na(median_income)) |> 
+    summarise(median_tract_income = median(median_income))
+
+```
+
+
+```{r}
+
+
+ny_census_combined_3 <- ny_census_combined_3 |> 
+    mutate(median_income = ifelse(county_name == "Queens County" & is.na(median_income), 88882,median_income ))
+
+
+```
+
+
+```{r}
+
+
+saveRDS(ny_census_combined_3, "ny_census_combined_3.rds")
+
 
 
 
@@ -1914,29 +1924,107 @@ ny_census_combined_3 <- ny_census_combined_3 |>
 
 
 
-
 ```{r}
 
-
-ny_census_combined_2 |> 
-    filter(county_name == "New York County") |> 
-    head(40)
+ny_census_combined_3 <- readRDS("ny_census_combined_3.rds")
 
 
 ```
 
 
-Census Tract 536.01
-
-
 ```{r}
 
 
-ny_census_combined_2 |> 
-    filter(census_tract == "Census Tract 536.01") |> 
+
+ny_census_combined_3 |> 
+    filter(is.na(median_income)) |> 
     head()
 
 
+
+```
+
+```{r}
+
+
+ny_census_combined_3 |> 
+    summary()
+
+
+```
+
+All missing values for median income have been filled in (impouted).  The last feature to inspect is median_value. 
+
+
+```{r}
+
+
+
+
+ny_census_combined_3 |> 
+    filter(is.na(median_value)) |> 
+    head(10)
+
+
+```
+
+
+```{r}
+
+
+
+ny_census_combined_3 |> 
+    filter(is.na(median_value)) |> 
+    tail(10)
+
+
+```
+
+
+
+
+
+ Census Tract 391, Census Tract 215.02 , and Census Tract 266.01 Bronx County
+
+
+
+
+
+
+
+
+```{r}
+
+
+ny_tract_geom_2 |> 
+    filter(county_name == "Bronx County") |> 
+    filter(!is.na(median_value)) |> 
+    summarise(median_tract_value = median(median_value))
+
+
+
+```
+
+
+
+
+```{r}
+
+
+
+
+```
+
+
+
+
+
+```{r}
+
+
+
+
+
 ```
 
 
@@ -1944,10 +2032,7 @@ ny_census_combined_2 |>
 ```{r}
 
 
-ny_census_combined_2 |> 
-    filter(county_name == "Kings County") |> 
-    filter(!is.na(median_income)) |> 
-    summarise(median_tract_income = median(median_income))
+
 
 
 ```
