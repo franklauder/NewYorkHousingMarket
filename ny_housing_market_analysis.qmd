@@ -1603,7 +1603,9 @@ ny_census_combined <- readRDS("ny_census_combined.rds")
 
 
 
+# Data Cleaning
 
+## Missing Values
 
 
 ```{r}
@@ -1626,6 +1628,8 @@ ny_census_combined |>  summary()
 There are a number of features with missing values.  Lets inspect these missing values. 
 
 
+
+### Median year built
 
 ```{r}
 
@@ -1698,6 +1702,9 @@ ny_census_combined_2 |>
 ```
 
 The three census tracts with missing demographic data have been removed. 
+
+
+### Medium Income
 
 
 ```{r}
@@ -1955,6 +1962,8 @@ ny_census_combined_3 |>
 
 All missing values for median income have been filled in (impouted).  The last feature to inspect is median_value. 
 
+### Median Value
+
 
 ```{r}
 
@@ -1984,7 +1993,7 @@ ny_census_combined_3 |>
 
 
 
- Census Tract 391, Census Tract 215.02 , and Census Tract 266.01 Bronx County
+ Census Tracts 391, 215.02 , 266.01, 375.04, 173, 419 Bronx County
 
 
 
@@ -2012,8 +2021,17 @@ ny_tract_geom_2 |>
 
 
 
+ny_census_combined_4 <- ny_census_combined_3 |> 
+    mutate(median_value = ifelse(county_name == "Bronx County" & is.na(median_value), 607050,median_value ))
+
+
 
 ```
+
+
+
+
+Census Tracts 505, 596, 575 Queens County
 
 
 
@@ -2022,7 +2040,10 @@ ny_tract_geom_2 |>
 ```{r}
 
 
-
+ny_tract_geom_2 |> 
+    filter(county_name == "Kings County") |> 
+    filter(!is.na(median_value)) |> 
+    summarise(median_tract_value = median(median_value))
 
 
 ```
@@ -2032,36 +2053,91 @@ ny_tract_geom_2 |>
 ```{r}
 
 
-
+ny_census_combined_4 <- ny_census_combined_4 |> 
+    mutate(median_value = ifelse(county_name == "Kings County" & is.na(median_value), 956900,median_value ))
 
 
 ```
 
 
 
+Census Tracts 96, 172, 99.0293 New York County
+
+
+```{r}
+
+
+ny_tract_geom_2 |> 
+    filter(county_name == "New York County") |> 
+    filter(!is.na(median_value)) |> 
+    summarise(median_tract_value = median(median_value))
+
+
+
+```
+
+```{r}
+
+
+ny_census_combined_4 <- ny_census_combined_4 |> 
+    mutate(median_value = ifelse(county_name == "New York County" & is.na(median_value), 1078250,median_value ))
+
+```
+
+Tracts 85, 938, 83, 1227.02, 1133, 779.08, 155, 240 Queens County
+
+
+```{r}
+
+
+ny_tract_geom_2 |> 
+    filter(county_name == "Queens County") |> 
+    filter(!is.na(median_value)) |> 
+    summarise(median_tract_value = median(median_value))
+
+```
 
 
 
 ```{r}
 
 
-ny_census_combined |> 
-    filter(is.na(median_income)) |> 
-    head(20)
+ny_census_combined_4 <- ny_census_combined_4 |> 
+    mutate(median_value = ifelse(county_name == "Queens County" & is.na(median_value), 746350,median_value ))
 
 
 
 ```
+
 
 ```{r}
 
 
-ny_census_combined |> 
-    select(county_name) |> 
-    head(30)
+saveRDS(ny_census_combined_4 , "ny_census_combined_4.rds")
+
 
 ```
 
+
+```{r}
+
+
+ny_census_combined_4  <- readRDS("ny_census_combined_4.rds")
+
+
+```
+
+All missing values have been removed or imputed. 
+
+
+```{r}
+
+
+ny_census_combined_4 |> 
+    summary()
+
+
+```
 
 
 ```{r}
