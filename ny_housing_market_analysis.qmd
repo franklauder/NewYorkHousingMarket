@@ -415,7 +415,7 @@ census_codes$block <-substr(census_codes$census_code,12,15)
 
 ```
 
-#GEOID column
+GEOID column
 
 
 
@@ -671,6 +671,16 @@ ny_housing_census_2 <- ny_housing_census_2 |>
 ```
 
 
+
+```{r}
+
+
+ny_housing_census_2 <- ny_housing_census_2 |> 
+    mutate(property_id = as.character(property_id))
+
+```
+
+
 ```{r}
 
 
@@ -746,9 +756,12 @@ dim(ny_housing_census_2)
 
 ```
 
+Our dataset now has 4,433 observations. 
+
+
 ```{r}
 
-Our dataset now has 4,433 observations. 
+
 
 ```
 
@@ -777,7 +790,7 @@ There are five counties in our data that have properties for sale.
 
 
 ny_housing_census_2 |> 
-    count(TYPE, census_tract) |>
+    count(TYPE, GEOID) |>
     slice_max(n,n=10) |> 
     arrange(desc(n))
 
@@ -2110,6 +2123,16 @@ ny_census_combined_4 <- ny_census_combined_4 |>
 ```
 
 
+
+```{r}
+
+
+ny_census_combined_4 <- ny_census_combined_4 |> 
+    mutate(property_id = as.character(property_id))
+
+```
+
+
 ```{r}
 
 
@@ -2135,6 +2158,102 @@ All missing values have been removed or imputed.
 
 ny_census_combined_4 |> 
     summary()
+
+
+```
+
+
+```{r}
+
+ny_census_combined_4 |> glimpse()
+
+
+```
+
+# Visualization
+
+
+
+```{r}
+
+ny_tracts <- tracts(state="NY", cb=FALSE, year=2024)
+
+
+```
+
+
+
+```{r}
+
+saveRDS(ny_tracts, "ny_tracts.rds")
+
+
+```
+
+
+
+```{r}
+
+
+ny_tracts <- readRDS("ny_tracts.rds")
+
+
+```
+
+
+
+```{r}
+
+
+
+ny_census_combined_4 |> 
+    group_by(property_id,county_name, census_tract) |> 
+    count(property_id) |>
+    slice_max(n,n=10) |> 
+    ungroup()
+    #print(n=50)
+
+
+```
+
+
+```{r}
+
+
+
+ny_tracts <- readRDS("ny_tracts.rds")
+
+
+```
+
+
+```{r}
+
+
+ny_tracts_plot <- ggplot(ny_tracts)+
+    geom_sf()+
+    theme_void()
+
+
+
+```
+
+
+```{r}
+
+
+
+
+
+
+```
+
+
+```{r}
+
+
+
+ny_tracts <- tracts(state="NY", cb=FALSE, year=2024)
 
 
 ```
