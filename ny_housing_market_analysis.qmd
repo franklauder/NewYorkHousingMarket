@@ -2336,11 +2336,54 @@ class(property_tract_count)
 ```
 
 
+We will now add our tract property count feature to our combined data. 
+
+
 ```{r}
 
 
 ny_census_combined_5 <-ny_census_combined_4 |> 
-    left_join(property_tract_count)
+    left_join(property_tract_count, by="GEOID")
+
+
+```
+
+
+```{r}
+
+saveRDS(ny_census_combined_5, "ny_census_combined_5.rds")
+
+
+```
+
+
+
+```{r}
+
+
+
+ny_census_combined_5 <- readRDS("ny_census_combined_5.rds")
+
+
+```
+
+
+```{r}
+
+
+ny_census_combined_5 |> 
+glimpse()
+
+
+```
+
+
+```{r}
+
+
+ny_census_combined_5 |> 
+    summary()
+
 
 
 ```
@@ -2350,17 +2393,7 @@ ny_census_combined_5 <-ny_census_combined_4 |>
 
 
 
-
-
-
-```
-
-
-```{r}
-
-
-
-
+class(ny_census_combined_5)
 
 
 
