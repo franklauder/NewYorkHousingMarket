@@ -1973,6 +1973,11 @@ ny_census_combined_3 |>
 
 ```
 
+
+
+
+
+
 All missing values for median income have been filled in (impouted).  The last feature to inspect is median_value. 
 
 ### Median Value
@@ -2254,6 +2259,109 @@ ny_tracts_plot <- ggplot(ny_tracts)+
 
 
 ny_tracts <- tracts(state="NY", cb=FALSE, year=2024)
+
+
+```
+
+
+We're going to create a map displaying the median home value of the census tract. First, we are going to create a feature for the property count in each census tract. This will be used for hovering data on our map.   
+
+```{r}
+
+
+property_tract_count<-ny_housing_census_2 |> 
+    count(GEOID, name = "tract_property_count")
+    
+
+
+```
+
+
+
+```{r}
+
+saveRDS(property_tract_count, "property_tract_count.rds")
+
+
+```
+
+
+```{r}
+
+property_tract_count <- readRDS("property_tract_count.rds")
+
+
+```
+
+
+
+```{r}
+
+
+property_tract_count |> 
+    glimpse()
+
+
+```
+
+```{r}
+
+
+property_tract_count |> 
+    slice_max(tract_property_count, n=20) 
+    
+   
+
+
+```
+
+
+```{r}
+
+property_tract_count |> 
+    summary()
+
+
+
+```
+
+
+```{r}
+
+
+class(property_tract_count)
+
+
+
+```
+
+
+```{r}
+
+
+ny_census_combined_5 <-ny_census_combined_4 |> 
+    left_join(property_tract_count)
+
+
+```
+
+
+```{r}
+
+
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+
 
 
 ```
