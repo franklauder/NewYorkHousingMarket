@@ -819,6 +819,63 @@ ny_housing_census_2 |>
 
 ```
 
+
+
+
+```{r}
+
+
+ny_housing_census_2 |> glimpse()
+
+
+```
+
+
+```{r}
+
+
+county_level<-ny_housing_census_2 |> 
+    select(GEOID, TYPE, PRICE, BEDS, BATH, PROPERTYSQFT, county, property_id)
+
+
+```
+
+
+```{r}
+
+
+county_level$GEOID <- substr(county_level$GEOID,1,5)
+
+
+```
+
+
+```{r}
+
+saveRDS(county_level, "county_level.rds")
+
+
+```
+
+```{r}
+
+county_level <- readRDS("county_level.rds")
+
+
+```
+
+
+```{r}
+
+
+property_county<-county_level |> 
+    count(GEOID, name = "county_property_cnt")
+
+
+```
+
+
+
 ## Visualization
 
 ```{r}
@@ -2179,6 +2236,126 @@ ny_census_combined_4 |> glimpse()
 
 
 
+
+```{r}
+
+
+ny_county_shape <- counties(state="NY", cb=FALSE, year=2024)
+
+
+```
+
+
+```{r}
+
+
+saveRDS(ny_county_shape, "ny_county_shape.rds")
+
+
+```
+
+
+```{r}
+
+ny_county_shape <- readRDS("ny_county_shape.rds")
+
+
+```
+
+
+```{r}
+
+
+county_level_2 <- ny_county_shape |> 
+    inner_join(county_level, by = "GEOID")
+
+
+```
+
+```{r}
+
+county_level_2 <- county_level_2 |> 
+    select(GEOID, TYPE, PRICE, BEDS, BATH, property_id, geometry)
+
+
+
+```
+
+
+```{r}
+
+
+saveRDS(county_level_2, "county_level_2.rds")
+
+
+
+```
+
+```{r}
+
+
+county_level_2 <- readRDS("county_level_2.rds")
+
+```
+
+
+
+```{r}
+
+
+ggplot()+
+    geom_sf(data=ny_county_shape, fill=NA)+
+    geom_sf(data=county_level_2, color="red", size=1)+
+    theme_bw()
+
+
+
+```
+
+
+From this plot it appears that all properties for sale are in counties that include all five boroughs of New York City.  Let's create a map that focuses on this area. 
+
+```{r}
+
+
+
+ny_county_shape_2 <- ny_county_shape |> 
+    filter(NAME %in% c("Bronx", "Kings", "New York", "Queens", "Richmond" ))
+
+
+```
+
+
+```{r}
+
+
+saveRDS(ny_county_shape_2, "ny_county_shape_2.rds")
+
+
+```
+
+```{r}
+
+ny_county_shape_2 <- readRDS("ny_county_shape_2.rds")
+
+
+```
+
+
+```{r}
+
+
+
+ggplot()+
+    geom_sf(data=ny_county_shape_2, fill=NA)+
+    geom_sf(data=county_level_2, color="red", size=1)+
+    theme_bw()
+
+
+```
+
+
+
 ```{r}
 
 ny_tracts <- tracts(state="NY", cb=FALSE, year=2024)
@@ -2207,19 +2384,7 @@ ny_tracts <- readRDS("ny_tracts.rds")
 
 
 
-```{r}
 
-
-
-ny_census_combined_4 |> 
-    group_by(property_id,county_name, census_tract) |> 
-    count(property_id) |>
-    slice_max(n,n=10) |> 
-    ungroup()
-    #print(n=50)
-
-
-```
 
 
 ```{r}
@@ -2230,6 +2395,9 @@ ny_tracts <- readRDS("ny_tracts.rds")
 
 
 ```
+
+
+This plot displays how the geographical size of census tracts can vary. 
 
 
 ```{r}
