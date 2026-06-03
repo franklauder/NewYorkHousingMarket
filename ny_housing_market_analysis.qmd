@@ -524,7 +524,7 @@ census_geo |>  glimpse()
 ```{r}
 
 
-ny_housing_census <- cbind(ny_housing_2, census_geo)
+ny_housing_census <- cbind(ny_housing_2, census_codes)
 
 
 ```
@@ -695,6 +695,15 @@ saveRDS(ny_housing_census_2, "ny_housing_census_2.rds")
 
 
 ny_housing_census_2 <- readRDS("ny_housing_census_2.rds")
+
+
+```
+
+
+```{r}
+
+ny_housing_census_2 |> 
+    glimpse()
 
 
 ```
@@ -1120,6 +1129,15 @@ ny_tract_info_1 <- readRDS("ny_tract_info_1.rds")
 
 ```
 
+
+```{r}
+
+
+ny_tract_info_1 |> 
+    glimpse()
+
+```
+
 ```{r}
 
 
@@ -1463,6 +1481,22 @@ ny_tract_geom<-ny_tract_cls |>
 ```
 
 
+
+
+```{r}
+
+
+
+ny_tract_geom<-ny_tract_geometry |> 
+    full_join(ny_tract_data_2, by = "GEOID")
+
+
+
+```
+
+
+
+
 ```{r}
 
 saveRDS(ny_tract_geom,"ny_tract_geom.rds")
@@ -1648,7 +1682,7 @@ ny_tract_geom_2 |>
 
 ny_census_combined <- ny_tract_geom_2 |> 
     inner_join(ny_housing_census_2, join_by(GEOID)) |> 
-    select(-census_code, -LATITUDE, -LONGITUDE, -zip_cde, -block)
+    select(-census_code, -zip_cde, -block)
 
 
 
@@ -2341,13 +2375,38 @@ ny_county_shape_2 <- readRDS("ny_county_shape_2.rds")
 
 ```
 
+```{r}
+
+st_crs(ny_county_shape_2)
+
+```
+
+
+```{r}
+
+
+
+ny_county_epsg4326 <- ny_county_shape_2 |> 
+    st_transform(crs=4326)
+
+```
+
+
+
+```{r}
+
+
+saveRDS(ny_county_epsg4326, "ny_county_epsg4326.rds")
+
+```
+
 
 ```{r}
 
 
 
 ggplot()+
-    geom_sf(data=ny_county_shape_2, fill=NA)+
+    geom_sf(data=ny_county_epsg4326, fill=NA)+
     geom_sf(data=county_level_2, color="red", size=1)+
     theme_bw()
 
@@ -2563,6 +2622,126 @@ ny_census_combined_5 |>
 
 class(ny_census_combined_5)
 
+
+
+```
+
+
+```{r}
+
+ny_census4326 <- ny_census_combined_5 |> 
+    st_transform(crs=4326)
+
+
+```
+
+
+
+
+```{r}
+
+
+
+bins<-c(0,8000,16000,32000,48000,60000,90000,Inf)
+
+
+```
+
+```{r}
+
+
+
+pal<-colorBin(palette="YlOrRd",
+            domain=ny_census_combined_5$pop_density,bins=bins)
+
+```
+
+```{r}
+
+
+
+mytext <- paste(
+  "Census Tract: ", ny_census_combined_5$census_tract,"<br/>",
+  "Population: ", ny_census_combined_5$total_population, "<br/>",
+  "County: ", ny_census_combined_5$county_name,"<br/>", 
+  "Properties For Sale: ", ny_census_combined_5$tract_property_count, "<br/>",
+    sep="") %>%
+  lapply(htmltools::HTML)
+
+
+
+```
+
+
+```{r}
+
+
+
+map_tract_pop_density_plt<- ny_census4326 %>% leaflet() %>% 
+  addTiles() %>% 
+  #addProviderTiles(providers$CartoDB) %>% 
+  addPolygons(
+ fillColor=~pal(pop_density),
+ weight=2,
+ opacity=1,
+ color= "white",
+ label=~mytext,
+ dashArray = "3",
+ fillOpacity=0.7,
+ highlightOptions = highlightOptions(
+    weight = 5,
+    color = "#666",
+    dashArray = "",
+    fillOpacity = 0.7,
+    bringToFront = TRUE))
+
+
+```
+
+```{r}
+
+
+
+map_tract_pop_density_plt<-  %>% leaflet(options = leafletOptions())) %>% 
+  addTiles() %>% 
+  #addProviderTiles(providers$CartoDB) %>% 
+  addPolygons(
+ fillColor=~pal(pop_density),
+ weight=2,
+ opacity=1,
+ color= "white",
+ label=~mytext,
+ dashArray = "3",
+ fillOpacity=0.7,
+ highlightOptions = highlightOptions(
+    weight = 5,
+    color = "#666",
+    dashArray = "",
+    fillOpacity = 0.7,
+    bringToFront = TRUE))
+
+
+
+```
+
+
+
+```{r}
+
+
+
+tract_map_pop_density<-map_tract_pop_density_plt %>% 
+  addLegend(pal = pal, values = ~pop_density, opacity = 0.7, title = "Census Tract Population Density",
+  position = "bottomright")
+
+
+```
+
+
+```{r}
+
+
+tract_map_pop_density
 
 
 ```
