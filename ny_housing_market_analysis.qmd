@@ -2676,6 +2676,8 @@ st_crs(ny_census4326)
 
 ```
 
+## Population Density
+
 
 ```{r}
 
@@ -2726,10 +2728,10 @@ pal<-colorBin(palette="YlOrRd",
 
 
 mytext <- paste(
-  "Census Tract: ", ny_census_combined_5$census_tract,"<br/>",
-  "Population: ", ny_census_combined_5$total_population, "<br/>",
-  "County: ", ny_census_combined_5$county_name,"<br/>", 
-  "Properties For Sale: ", ny_census_combined_5$tract_property_count, "<br/>",
+  "Census Tract: ", ny_census4326$census_tract,"<br/>",
+  "Population: ", ny_census4326$total_population, "<br/>",
+  "County: ", ny_census4326$county_name,"<br/>", 
+  "Properties For Sale: ", ny_census4326$tract_property_count, "<br/>",
     sep="") %>%
   lapply(htmltools::HTML)
 
@@ -2790,6 +2792,244 @@ tract_map_pop_density
 
 
 Zooming in on our map we see most census tracts with population density 90,000 or above mostly located in New York County (manhatten).  We do observe some census tracts in Queens County and Bronx County that have population densities 90,000 or above. 
+
+## Median Home Value Census Tract
+
+
+We'll creare a median property price by tract.  
+
+
+
+```{r}
+
+
+median_tract_price <- ny_housing_census_2 |>
+    group_by(GEOID) |> 
+    summarize(median_tract_property_price = median(PRICE)) |> 
+    ungroup() 
+   
+
+
+
+```
+
+
+Convert median_tract_propertyt_price to integer. 
+
+
+
+```{r}
+
+
+median_tract_price <- median_tract_price |> 
+    mutate(median_tract_property_price = as.integer(median_tract_property_price))
+
+
+```
+
+
+
+```{r}
+
+
+
+saveRDS(median_tract_price, "median_tract_price.rds")
+
+```
+
+
+```{r}
+
+
+median_tract_price <- readRDS("median_tract_price.rds")
+
+
+```
+
+
+```{r}
+
+median_tract_price |> head()
+
+
+```
+
+
+```{r}
+
+median_tract_price |> glimpse()
+
+
+```
+
+
+
+Our media_tract_price dataframe will be joined to our unprojected combined data. 
+
+
+
+
+
+```{r}
+
+
+ny_combined_census4326 <- ny_census4326 |> 
+    left_join(median_tract_price, join_by(GEOID))
+
+
+```
+
+
+
+```{r}
+
+
+saveRDS(ny_combined_census4326, "ny_combined_census4326.rds")
+
+
+```
+
+
+
+
+```{r}
+
+
+ny_combined_census4326 <- readRDS("ny_combined_census4326.rds")
+
+
+```
+
+
+```{r}
+
+
+st_crs(ny_combined_census4326)
+
+
+```
+
+
+```{r}
+
+ny_combined_census4326 |> head()
+
+
+```
+
+
+```{r}
+
+
+ny_combined_census4326 |> glimpse()
+
+```
+
+```{r}
+
+ny_combined_census4326 |> 
+    summary()
+
+
+```
+
+Now that we have addeed our median property price feature we can build our map. 
+
+
+```{r}
+
+
+
+bins<-c(0,115000,300000,600000,900000,1200000,1500000, 1800000,Inf)
+
+
+
+```
+
+
+```{r}
+
+
+pal<-colorBin(palette="YlOrRd",
+            domain=ny_combined_census4326$median_value,bins=bins)
+
+
+```
+
+
+```{r}
+
+
+
+
+mytext <- paste(
+  "Census Tract: ", ny_combined_census4326$census_tract,"<br/>",
+  "County: ", ny_combined_census4326$county_name,"<br/>",
+  "Median Property Price: ", ny_combined_census4326$median_tract_property_price, "<br/>",
+  "Median Structure Age: ", ny_combined_census4326$median_structure_age,"<br/>", 
+  "Percent Owner Occupied: ", ny_combined_census4326$percent_ooh, "<br/>",
+  "Median Age: ", ny_combined_census4326$median_age, "<br/>",
+  "Median Income: ", ny_combined_census4326$median_income, "<br/>",
+    sep="") %>%
+  lapply(htmltools::HTML)
+
+
+
+```
+
+
+
+```{r}
+
+
+map_tract_median_value_plt<- ny_combined_census4326 %>% leaflet() %>% 
+  addTiles() %>% 
+  setView(lng = -73.87478, lat = 40.72395, zoom = 11.4) |> 
+  #addProviderTiles(providers$CartoDB) %>% 
+  addPolygons(
+ fillColor=~pal(median_value),
+ weight=2,
+ opacity=1,
+ color= "white",
+ label=~mytext,
+ dashArray = "3",
+ fillOpacity=0.7,
+ highlightOptions = highlightOptions(
+    weight = 5,
+    color = "#666",
+    dashArray = "",
+    fillOpacity = 0.7,
+    bringToFront = TRUE))
+
+
+
+```
+
+
+```{r}
+
+
+
+
+tract_map_med_value<-map_tract_median_value_plt %>% 
+  addLegend(pal = pal, values = ~median_value, opacity = 0.7, title = "Census Tract Median Home Value",
+  position = "bottomright")
+
+
+```
+
+
+```{r}
+
+
+tract_map_med_value
+
+
+```
+
+
+
+
 
 
 ```{r}
