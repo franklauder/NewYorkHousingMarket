@@ -2629,11 +2629,56 @@ class(ny_census_combined_5)
 
 ```{r}
 
+
+st_crs(ny_census_combined_5)
+
+```
+
+
+From the first line of our output we can see the coordinate reference system(crs) is EPSG:5030.  This is a projected crs.  A projected crs creates a map with a shpe that is a 2D representation mathematically adapted from a 3D surface.  It'a measured in linear units like meters, feet, or miles.  
+
+The leaflet library requrirers an unprojected crs.  An unprojected crs represents the Earth as a sphere. It's measured in angular units like decimal degrees.  We will transform the ny_census_combined_5 dataset to an unprojected crs using the function st_transform from the SF library. 
+
+
+```{r}
+
 ny_census4326 <- ny_census_combined_5 |> 
     st_transform(crs=4326)
 
 
 ```
+
+```{r}
+
+
+
+saveRDS(ny_census4326 , "ny_census4326.rds")
+
+
+```
+
+```{r}
+
+ny_census4326  <- readRDS("ny_census4326.rds")
+
+
+```
+
+
+
+```{r}
+
+
+
+
+st_crs(ny_census4326)
+
+
+```
+
+
+
+The crs is now EPSG:4326, which is unprojected. 
 
 
 
