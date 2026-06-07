@@ -2677,6 +2677,26 @@ st_crs(ny_census4326)
 ```
 
 
+```{r}
+
+
+ny_census4326 |> 
+    glimpse()
+
+```
+
+
+```{r}
+
+
+
+ny_census4326 |> 
+    filter(county_name == "Queens County" & census_tract == "Census Tract 663.01")
+
+
+```
+
+
 
 The crs is now EPSG:4326, which is unprojected. 
 
@@ -2724,6 +2744,7 @@ mytext <- paste(
 
 map_tract_pop_density_plt<- ny_census4326 %>% leaflet() %>% 
   addTiles() %>% 
+  setView(lng = -73.87478, lat = 40.72395, zoom = 11.4) |> 
   #addProviderTiles(providers$CartoDB) %>% 
   addPolygons(
  fillColor=~pal(pop_density),
@@ -2743,31 +2764,7 @@ map_tract_pop_density_plt<- ny_census4326 %>% leaflet() %>%
 
 ```
 
-```{r}
 
-
-
-map_tract_pop_density_plt<-  %>% leaflet(options = leafletOptions())) %>% 
-  addTiles() %>% 
-  #addProviderTiles(providers$CartoDB) %>% 
-  addPolygons(
- fillColor=~pal(pop_density),
- weight=2,
- opacity=1,
- color= "white",
- label=~mytext,
- dashArray = "3",
- fillOpacity=0.7,
- highlightOptions = highlightOptions(
-    weight = 5,
-    color = "#666",
-    dashArray = "",
-    fillOpacity = 0.7,
-    bringToFront = TRUE))
-
-
-
-```
 
 
 
@@ -2790,6 +2787,9 @@ tract_map_pop_density
 
 
 ```
+
+
+Zooming in on our map we see most census tracts with population density 90,000 or above mostly located in New York County (manhatten).  We do observe some census tracts in Queens County and Bronx County that have population densities 90,000 or above. 
 
 
 ```{r}
