@@ -36,6 +36,9 @@ library(htmltools)
 library(gt)
 library(DT)
 library(GGally)
+library(lme4)
+library(lmerTest)
+library(rstanarm)
 
 
 ```
@@ -734,7 +737,7 @@ ny_housing_census_2 |>
 
 ```
 
-Above is the ercentage breakdown of propery type.  type. 
+Above is the percentage breakdown of propery type.
 
 
 
@@ -885,111 +888,7 @@ property_county<-county_level |>
 
 
 
-## Visualization
 
-```{r}
-
-
-sqr_ft_box<-ny_housing_census_2 %>% 
-  ggplot(aes(x=TYPE, y=PROPERTYSQFT, fill=TYPE))+
-  geom_boxplot()+
-  ggtitle("Property Square Feet by Property Type")+
-  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
-  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
-        axis.title.x=element_blank(),
-    axis.title.y=element_blank())
-
-
-```
-
-```{r}
-
-sqr_ft_box
-
-```
-
-```{r}
-
-
-bed_box<-ny_housing_census_2 %>% 
-  ggplot(aes(x=TYPE, y=BEDS, fill=TYPE))+
-  geom_boxplot()+
-  ggtitle("Number of Bed Rooms  by Property Type")+
-  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
-  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
-        axis.title.x=element_blank(),
-    axis.title.y=element_blank())
-
-
-```
-
-
-
-
-```{r}
-
-bed_box
-
-```
-
-
-
-```{r}
-
-
-
-bath_box<-ny_housing_census_2 %>% 
-  ggplot(aes(x=TYPE, y=BATH, fill=TYPE))+
-  geom_boxplot()+
-  ggtitle("Number of Bath Rooms  by Property Type")+
-  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
-  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
-        axis.title.x=element_blank(),
-    axis.title.y=element_blank())
-
-
-```
-
-
-
-
-
-
-```{r}
-
-bath_box
-
-
-```
-
-
-
-
-
-```{r}
-
-corr_plot <- ny_housing_census_2 |> 
-    select(PRICE, PROPERTYSQFT, BEDS, BATH) |> 
-    ggscatmat(corMethod = "pearson", alpha = 0.2)
-
-
-
-
-
-```
-
-
-```{r}
-
-
-
-
-corr_plot
-
-
-
-
-```
 
 
 
@@ -2270,6 +2169,277 @@ ny_census_combined_4 |> glimpse()
 
 
 
+## Features
+
+
+```{r}
+
+
+
+sqr_ft_box<-ny_housing_census_2 %>% 
+  ggplot(aes(x=TYPE, y=PROPERTYSQFT, fill=TYPE))+
+  geom_boxplot()+
+  ggtitle("Property Square Feet by Property Type")+
+  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
+  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
+        axis.title.x=element_blank(),
+    axis.title.y=element_blank())
+
+
+
+```
+
+
+```{r}
+
+
+sqr_ft_box
+
+```
+
+
+
+```{r}
+
+
+
+
+bath_box<-ny_housing_census_2 %>% 
+  ggplot(aes(x=TYPE, y=BATH, fill=TYPE))+
+  geom_boxplot()+
+  ggtitle("Number of Bath Rooms  by Property Type")+
+  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
+  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
+        axis.title.x=element_blank(),
+    axis.title.y=element_blank())
+
+
+
+```
+
+```{r}
+
+
+bath_box
+
+```
+
+
+
+```{r}
+
+
+bed_box<-ny_housing_census_2 %>% 
+  ggplot(aes(x=TYPE, y=BEDS, fill=TYPE))+
+  geom_boxplot()+
+  ggtitle("Number of Bed Rooms  by Property Type")+
+  theme(legend.position = "none",plot.title = element_text(color="blue", size=14, face="bold.italic", hjust=0.5))+
+  theme(axis.ticks.x=element_blank(),legend.position = "none", axis.text.x=element_text(angle=70, hjust=1),
+        axis.title.x=element_blank(),
+    axis.title.y=element_blank())
+
+
+
+```
+
+
+```{r}
+
+bed_box
+
+
+```
+
+
+```{r}
+
+
+
+price_hist <- ggplot(ny_housing_census_2, aes(x=PRICE)) +
+    geom_histogram(bins=30) +
+    scale_x_continuous() 
+
+
+```
+
+```{r}
+
+price_hist
+
+
+```
+
+
+Our historgram for the PRICE feature shows all our observations falling at zero.  This does not seem correct.  LEt's review a summary of the PRICE feature. 
+
+
+```{r}
+
+
+ny_housing_census_2 |> 
+    select(PRICE) |> 
+    summary()
+
+
+```
+
+There is a dramatic range of values from a minimum of 5800 to a maximum of 2,147,483,647
+
+
+
+
+```{r}
+
+
+ny_housing_census_2 |> 
+    filter(PRICE > 100000000)
+
+
+
+```
+
+We have two properties with a price over 100 million.  This might be affecting a plot.  Let's first remove the two observations over 100 million and plot the histogram. 
+
+
+```{r}
+
+ny_housing_census_2 |> 
+    filter(PRICE < 100000000) |> 
+    ggplot(aes(x=PRICE)) +
+    geom_histogram(bins=60) +
+    scale_x_continuous()
+
+
+
+
+```
+
+
+
+That helped though there is right scew to our plot.  Instead of removing values, we'll apply a logarithmic transformation to the PRICE feature. 
+
+
+```{r}
+
+log_price_hist <- ggplot(ny_housing_census_2, aes(x=log(PRICE))) +
+    geom_histogram(bins=30) +
+    scale_x_continuous() 
+
+
+```
+
+
+
+
+```{r}
+
+log_price_hist
+
+
+```
+
+
+
+Applying the logarithmic tranformation to PRICE gives us a plot closer to the normal distribution (bell shaped).  
+
+
+
+
+
+
+```{r}
+
+
+sqft_hist <- ggplot(ny_housing_census_2, aes(x=PROPERTYSQFT)) +
+    geom_histogram(bins=100) +
+    scale_x_continuous() 
+
+
+```
+
+```{r}
+
+sqft_hist
+
+```
+
+The property squarefeet histogram has a scew to teh right.  bWE'll try apllying a logarithmic transformation to this feature. 
+
+
+```{r}
+
+
+
+log_sqft_hist <- ggplot(ny_housing_census_2, aes(x=log(PROPERTYSQFT))) +
+    geom_histogram(bins=100) +
+    scale_x_continuous() 
+
+
+```
+
+
+```{r}
+log_sqft_hist
+
+
+```
+
+
+The log transformation gave us closer to a normal distribution though we see that there are many values around the mean. 
+
+
+```{r}
+
+
+ny_housing_census_2 |> 
+    select(PROPERTYSQFT) |> 
+    summary()
+
+
+```
+
+ ```{r}
+ 
+
+ny_housing_census_2 |> 
+    select(PROPERTYSQFT) |> 
+    filter(PROPERTYSQFT >= 2184 & PROPERTYSQFT <=2198) |> 
+    
+
+
+ ```
+
+
+ Roughly Thirty Five Percent of our obesrvations fall between PROPERTY Square Feet of 2184 and 2198. 
+
+
+```{r}
+
+
+
+
+corr_plot <- ny_housing_census_2 |> 
+    select(PRICE, PROPERTYSQFT, BEDS, BATH) |> 
+    ggscatmat(corMethod = "pearson", alpha = 0.2)
+
+```
+
+
+
+```{r}
+
+
+corr_plot
+
+
+```
+
+
+
+
+
+## Maps
+
 
 ```{r}
 
@@ -3028,7 +3198,14 @@ tract_map_med_value
 ```
 
 
+# Model
 
+
+This is rstanarm version 2.32.2
+- See https://mc-stan.org/rstanarm/articles/priors for changes to default priors!
+- Default priors may change, so it's safest to specify priors, even if equivalent to the defaults.
+- For execution on a local, multicore CPU with excess RAM we recommend calling
+  options(mc.cores = parallel::detectCores())
 
 
 
