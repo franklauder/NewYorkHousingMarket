@@ -3242,6 +3242,14 @@ formula_1 <- "log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT )"
 ```
 
 
+```{r}
+
+options(scipen = 999)
+
+
+```
+
+
 
 ```{r}
 
@@ -3302,6 +3310,7 @@ The R squared for model 2 improved to 0.72.  All but four features are significa
 
 
 
+
 ```{r}
 
 
@@ -3311,4 +3320,98 @@ library(corrr)
 ```
 
 
+```{r}
 
+
+
+ny_housing_estimates <- ny_census_combined_4 |> 
+    select(-GEOID, -census_tract, -county_name, -median_year_built, -TYPE, -PRICE, -LATITUDE, -LONGITUDE, -county, -property_id) |> 
+    st_drop_geometry()
+
+
+
+```
+
+
+
+```{r}
+
+
+correlations <- correlate(ny_housing_estimates, method = "pearson")
+
+
+```
+
+
+```{r}
+
+
+network_plot(correlations)
+
+
+```
+
+
+
+
+## Mixed Model
+
+
+
+```{r}
+
+scale()
+
+
+```
+
+
+
+
+```{r}
+
+
+
+
+formula_3 <- "log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT + (1 | GEOID))"
+
+
+```
+
+
+```{r}
+
+
+model_3 <- lmer(log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT) + (1 | GEOID), data = ny_census_combined_4)
+
+
+```
+
+
+
+```{r}
+
+
+model_3 <- lmer(PRICE ~  (1 | GEOID), data = ny_census_combined_4)
+
+
+
+```
+
+
+```{r}
+
+
+library(lmerTest)
+
+
+```
+
+
+
+```{r}
+
+
+model_4 <- as_lmerModLmerTest()
+
+```
