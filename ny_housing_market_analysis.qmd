@@ -3217,3 +3217,98 @@ load_variables(2020,"acs5")
 
 
 ```
+
+
+
+
+# Models
+
+## Linear Regression
+
+
+Our first linear regression model will include only predictor features from our original New York Housing dataset. 
+
+
+
+```{r}
+
+
+
+
+formula_1 <- "log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT )"
+
+
+
+```
+
+
+
+```{r}
+
+
+model_1 <- lm(formula = formula_1, data = ny_census_combined_4)
+
+
+```
+
+
+
+```{r}
+
+
+summary(model_1)
+
+
+```
+
+
+Our model has an R-squared of 0.518 which places it as an average model.  All of the predictor features are significant.  Let's try and improve our model by adding the census data features as predictors. 
+
+
+
+
+
+```{r}
+
+
+
+formula_2 <- "log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT) + median_value + total_population + median_age + median_income + pct_college + pct_foreign_born + pct_white + percent_ooh + pop_density + median_structure_age"
+
+
+```
+
+
+```{r}
+
+
+model_2 <- lm(formula = formula_2, data = ny_census_combined_4)
+
+
+```
+
+
+
+```{r}
+
+
+summary(model_2)
+
+```
+
+The R squared for model 2 improved to 0.72.  All but four features are significant.  The BEDS feature, which was significant in model 1 is now insignificant.  
+
+
+
+
+
+
+```{r}
+
+
+library(corrr)
+
+
+```
+
+
+
