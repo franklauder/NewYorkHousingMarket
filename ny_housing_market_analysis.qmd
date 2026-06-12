@@ -3243,6 +3243,25 @@ model_df <- ny_census_combined_4 |>
 
 ```
 
+
+```{r}
+
+
+
+saveRDS(model_df, "model_df.rds")
+
+```
+
+
+```{r}
+
+
+
+model_df <- readRDS("model_df.rds")
+
+
+```
+
 ```{r}
 
 
@@ -3260,16 +3279,31 @@ class(model_df)
 
 ```
 
+```{r}
+
+library(recipes)
+
+```
+
 
 ```{r}
 
 
 
-numeric_cols <- sapply(model_df, is.numeric)
+rec <- recipe(PRICE ~ ., data = model_df) |> 
+    step_center(all_numeric_predictors()) |> 
+    step_scale(all_numeric_predictors())
 
-numeric_cols["PRICE"] <- FALSE
 
-model_df[numeric_cols] <- lapply(model_df[numeric_cols], scale)
+
+
+```
+
+```{r}
+
+
+model_rec <- prep(rec, training= model_df)
+scaled_df <- bake(model_rec, new_data = model_df)
 
 
 ```
@@ -3278,28 +3312,46 @@ model_df[numeric_cols] <- lapply(model_df[numeric_cols], scale)
 ```{r}
 
 
-saveRDS(model_df, "model_df.rds")
+saveRDS(scaled_df, "scaled_df.rds")
 
 
 ```
+
+```{r}
+
+
+scaled_df <- readRDS("scaled_df.rds")
+
+
+```
+
 
 
 ```{r}
 
 
-model_df <- readRDS("model_df.rds")
+class(scaled_df)
 
 
 ```
-
 
 ```{r}
 
 
-head(model_df)
+scaled_df |> 
+    glimpse()
 
 
 ```
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3465,7 +3517,7 @@ model_3 <- lmer(log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT) + (1 | GEOID
 ```{r}
 
 
-model_3 <- lmer(PRICE ~  (1 | GEOID), data = model_df)
+model_3 <- lmer(PRICE ~  PROPERTYSQFT + (PROPERTYSQFT | GEOID), data = model_df)
 
 
 
