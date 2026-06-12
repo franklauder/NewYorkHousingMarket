@@ -3229,13 +3229,86 @@ load_variables(2020,"acs5")
 Our first linear regression model will include only predictor features from our original New York Housing dataset. 
 
 
+```{r}
+
+
+
+model_df <- ny_census_combined_4 |> 
+    select(-census_tract, -county_name, -median_year_built, -LATITUDE, -LONGITUDE, -county) |> 
+    st_drop_geometry()
+
+
+
+
+
+```
+
+```{r}
+
+
+model_df |> 
+    glimpse()
+
+
+```
+
+```{r}
+
+
+class(model_df)
+
+
+```
+
+
+```{r}
+
+
+
+numeric_cols <- sapply(model_df, is.numeric)
+
+numeric_cols["PRICE"] <- FALSE
+
+model_df[numeric_cols] <- lapply(model_df[numeric_cols], scale)
+
+
+```
+
+
+```{r}
+
+
+saveRDS(model_df, "model_df.rds")
+
+
+```
+
+
+```{r}
+
+
+model_df <- readRDS("model_df.rds")
+
+
+```
+
+
+```{r}
+
+
+head(model_df)
+
+
+```
+
+
 
 ```{r}
 
 
 
 
-formula_1 <- "log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT )"
+formula_1 <- "log(PRICE) ~ TYPE + BEDS + BATH + PROPERTYSQFT"
 
 
 
@@ -3254,7 +3327,7 @@ options(scipen = 999)
 ```{r}
 
 
-model_1 <- lm(formula = formula_1, data = ny_census_combined_4)
+model_1 <- lm(formula = formula_1, data = model_df)
 
 
 ```
@@ -3280,7 +3353,7 @@ Our model has an R-squared of 0.518 which places it as an average model.  All of
 
 
 
-formula_2 <- "log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT) + median_value + total_population + median_age + median_income + pct_college + pct_foreign_born + pct_white + percent_ooh + pop_density + median_structure_age"
+formula_2 <- "log(PRICE) ~ TYPE + BEDS + BATH + PROPERTYSQFT + median_value + total_population + median_age + median_income + pct_college + pct_foreign_born + pct_white + percent_ooh + pop_density + median_structure_age"
 
 
 ```
@@ -3392,7 +3465,7 @@ model_3 <- lmer(log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT) + (1 | GEOID
 ```{r}
 
 
-model_3 <- lmer(PRICE ~  (1 | GEOID), data = ny_census_combined_4)
+model_3 <- lmer(PRICE ~  (1 | GEOID), data = model_df)
 
 
 
