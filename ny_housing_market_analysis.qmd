@@ -39,7 +39,13 @@ library(GGally)
 library(lme4)
 library(lmerTest)
 library(rstanarm)
-
+library(brms)
+library(boot.pval)
+library(bayesplot)
+library(tidymodels)
+library(broom)
+library(units)
+library(tidybayes)
 
 ```
 
@@ -3379,7 +3385,7 @@ options(scipen = 999)
 ```{r}
 
 
-model_1 <- lm(formula = formula_1, data = model_df)
+model_1 <- lm(formula = formula_1, data = scaled_df)
 
 
 ```
@@ -3414,7 +3420,7 @@ formula_2 <- "log(PRICE) ~ TYPE + BEDS + BATH + PROPERTYSQFT + median_value + to
 ```{r}
 
 
-model_2 <- lm(formula = formula_2, data = ny_census_combined_4)
+model_2 <- lm(formula = formula_2, data = scaled_df)
 
 
 ```
@@ -3483,12 +3489,6 @@ network_plot(correlations)
 
 
 
-```{r}
-
-scale()
-
-
-```
 
 
 
@@ -3507,7 +3507,7 @@ formula_3 <- "log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT + (1 | GEOID))"
 ```{r}
 
 
-model_3 <- lmer(log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT) + (1 | GEOID), data = ny_census_combined_4)
+model_3 <- lmer(log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT) + (1 | GEOID), data = scaled_df)
 
 
 ```
@@ -3517,8 +3517,60 @@ model_3 <- lmer(log(PRICE) ~ TYPE + BEDS + BATH + log(PROPERTYSQFT) + (1 | GEOID
 ```{r}
 
 
-model_3 <- lmer(PRICE ~  PROPERTYSQFT + (PROPERTYSQFT | GEOID), data = model_df)
+model_3 <- lmer(PRICE ~  PROPERTYSQFT + BEDS + TYPE + pop_density + median_age + (1 | GEOID), data = scaled_df)
 
+
+
+```
+
+
+```{r}
+
+
+library(RcppParallel)
+
+
+```
+
+```{r}
+
+
+setThreadOptions(stackSize = 4*1024*1024)
+options(mc.cores = parallel::detectCores())
+
+
+
+```
+
+```{r}
+options(browser = "false")
+
+
+```
+
+
+```{r}
+
+
+model_4 <- stan_lmer(PRICE ~ PROPERTYSQFT + BEDS + median_value + pop_density + median_income + (1 | GEOID), 
+    data=scaled_df,
+    chains=4,
+    cores=4,
+    iter=4000)
+
+
+```
+
+
+```{r}
+
+
+model_4 <- stan_lmer(PRICE ~ PROPERTYSQFT + BEDS + median_value + pop_density + median_income + (1 | GEOID), 
+    data=scaled_df,
+    chains=5,
+    cores=1,
+    iter=10000,
+    refresh=250)
 
 
 ```
@@ -3528,6 +3580,41 @@ model_3 <- lmer(PRICE ~  PROPERTYSQFT + (PROPERTYSQFT | GEOID), data = model_df)
 
 
 library(lmerTest)
+
+
+```
+
+
+
+
+```{r}
+
+
+library(brms)
+
+
+```
+
+```{r}
+
+install.packages("Rtools")
+
+```
+
+
+```{r}
+
+
+brms_model <- brm(
+    PRICE ~ PROPERTYSQFT + BEDS + median_value + pop_density + median_income + (1 | GEOID),
+    data=scaled_df,
+    chains=4,
+    cores=1,
+    iter=4000
+
+
+)
+
 
 
 ```
