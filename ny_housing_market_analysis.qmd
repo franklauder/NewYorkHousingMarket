@@ -82,6 +82,14 @@ ny_housing |> glimpse()
 
 ```
 
+```{r}
+
+
+options(browser="false", scipen = 999, max.print = 10000)
+
+
+```
+
 
 
 ```{r}
@@ -111,8 +119,21 @@ The address fields are not consistant on the city or town names.  In some instan
 
 We will use the stringr package and regular expressions to extract the zip code which then can be used to determine the city. 
 
+There are four address columns, all of which are not consistent. In certain instances, the city name is a neighborhood. Due to these inconsistencies, we will use latitude and longitude coordinates to determine accurate location data.
 
 
+
+
+
+
+```{r}
+
+
+ny_housing |> 
+    select(ADDRESS,MAIN_ADDRESS, STREET_NAME, FORMATTED_ADDRESS, LONG_NAME, TYPE, PROPERTYSQFT) |> 
+    head(20)
+
+```
 
 
 ```{r}
@@ -183,52 +204,6 @@ ny_housing_2 |>
 
 
 ```
-
-
-
-
-
-```{r}
-
-
-
-
-
-
-```
-
-```{r}
-
-
-
-
-
-
-
-```
-
-
-
-
-
-
-
-
-
-```{r}
-
-
-
-
-
-
-```
-
-
-
-
-
-
 
 
 
